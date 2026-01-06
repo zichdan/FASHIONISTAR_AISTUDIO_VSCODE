@@ -1,0 +1,206 @@
+{
+    "category":  [
+{
+    "id": 1,
+    "image": "/p1.png",
+    "title": "Female Clothings"
+},
+{
+    "id": 2,
+    "image": "/p2.png",
+    "title": "Senator Outfit"
+},
+{
+    "id": 3,
+    "image": "/p3.png",
+    "title": "Senator Outfit"
+},
+{
+    "id": 4,
+    "image": "/p4.png",
+    "title": "Female Clothings"
+},
+{
+    "id": 5,
+    "image": "/p5.png",
+    "title": "Senator Outfit"
+},
+{
+    "id": 6,
+    "image": "/p6.png",
+    "title": "Senator Outfit"
+},
+{
+    "id": 7,
+    "image": "/p3.png",
+    "title": "Senator Outfit"
+},
+{
+    "id": 8,
+    "image": "/p4.png",
+    "title": "Female Clothings"
+},
+{
+    "id": 9,
+    "image": "/p5.png",
+    "title": "Senator Outfit"
+},
+{
+    "id": 10,
+    "image": "/p6.png",
+    "title": "Senator Outfit"
+}
+    ],
+    "collection": [
+        {
+            "id": 1,
+            "image": "/p11.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 2,
+            "image": "/p12.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 3,
+            "image": "/p13.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 4,
+            "image": "/p14.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 5,
+            "image": "/p15.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 6,
+            "image": "/p12.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 7,
+            "image": "/p11.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        },
+        {
+            "id": 8,
+            "image": "/p13.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000"
+        }
+        
+    ],
+    "deals": [
+        {
+            "id": 1,
+            "image": "/p11.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+            "status": "sales",
+            "new_price": "165000"
+        },
+        {
+            "id": 2,
+            "image": "/p12.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sold out",
+            "new_price": "165000"
+        },
+        {
+            "id": 3,
+            "image": "/p13.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sales",
+            "new_price": "165000"
+        },
+        {
+            "id": 4,
+            "image": "/p14.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sold out",
+            "new_price": "165000"
+        },
+        {
+            "id": 5,
+            "image": "/p15.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sales",
+            "new_price": "165000"
+        },
+        {
+            "id": 6,
+            "image": "/p12.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sold out",
+            "new_price": "165000"
+        },
+        {
+            "id": 7,
+            "image": "/p11.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sales",
+            "new_price": "165000"
+        },
+        {
+            "id": 8,
+            "image": "/p13.png",
+            "rating": 5,
+            "title": "Pink Knitted Sweat Shirt",
+            "price": "180000",
+             "status": "sales",
+            "new_price": "165000"
+        }
+        
+    ],
+    "reviews": [
+        {
+            "id": "1",
+            "image": "/dp.png",
+            "text": "Lorem ipsum dolor sit amet consectetur. Turpis sed fames sed consectetur nec arcu laoreet ipsum. Eget vulputate pharetra at mauris elit fames amet. ",
+            "rating": 5,
+            "name": "Jennifer Osato"
+        },
+        {
+            "id": "2",
+            "image": "/p15.png",
+            "text": "Lorem ipsum dolor sit amet consectetur. Turpis sed fames sed consectetur nec arcu laoreet ipsum. Eget vulputate pharetra at mauris elit fames amet. ",
+            "rating": 5,
+            "name": "John Doe"
+        }
+    ]
+}
+
+

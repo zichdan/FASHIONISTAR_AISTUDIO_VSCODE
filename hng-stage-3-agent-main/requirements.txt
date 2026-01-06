@@ -1,0 +1,48 @@
+# --- Core Framework & Server ---
+Django
+django
+djangorestframework
+drf-yasg
+daphne  # ASGI server for future real-time features with Channels
+
+# --- Database ---
+psycopg2-binary   # PostgreSQL driver
+dj-database-url   # For parsing DATABASE_URL from .env
+pgvector   # For vector search capabilities in PostgreSQL
+
+# --- Asynchronous & Background Tasks ---
+celery
+redis
+django_redis
+django-celery-beat  # For scheduling our periodic tasks
+django-celery-results
+httpx             # Modern, async-first HTTP client
+gevent
+
+# --- Environment & Utilities ---
+environs
+python-decouple     # For cleanly managing .env variables
+python-dotenv
+
+
+# --- Other Third Part-Packages  ---
+whitenoise
+django-cors-headers
+gunicorn
+
+
+# --- AI & Language Models ---
+openai              # For embeddings and/or chat models
+google-generativeai # For using the Gemini API
+
+
+# --- AI & Language Models ---
+langchain               #   Core Library that provides the framework for creating agents, defining prompts, and managing tool execution (AgentExecutor).
+langchain-openai        # For OpenAI models, including ChatOpenAI (for the LLM)
+langchain-core
+
+
+# --- Web Scraping ---
+beautifulsoup4
+requests          # A fallback/synchronous HTTP client
+

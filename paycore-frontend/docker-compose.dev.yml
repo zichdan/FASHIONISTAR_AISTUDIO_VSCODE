@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # Development frontend with hot reload
+  paycore-frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: paycore-frontend-dev
+    ports:
+      - "3000:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+      - VITE_APP_NAME=PayCore (Dev)
+      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
+    networks:
+      - paycore-network
+    stdin_open: true
+    tty: true
+
+networks:
+  paycore-network:
+    name: paycore-network
+    driver: bridge

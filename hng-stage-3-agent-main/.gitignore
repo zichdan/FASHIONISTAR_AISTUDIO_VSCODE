@@ -1,0 +1,158 @@
+# ==============================================================================
+# Python & Virtual Environments
+# ==============================================================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv
+venv311
+
+
+# ==============================================================================
+# Django
+# ==============================================================================
+*.log
+logs
+django.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+
+# ==============================================================================
+# Environment Variables & Secrets
+# ==============================================================================
+# Never commit your .env file! It contains secrets.
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!.env.template
+
+
+# ==============================================================================
+# IDE & Editor Directories
+# ==============================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+
+
+
+env/
+.idea/
+__pycache__/
+__pycache__
+*.py[cod]
+*$py.class
+.vscode/
+.DS_Store  
+.AppleDouble  
+.LSOverride
+.env
+
+
+
+
+
+
+
+
+
+
+env/
+.idea/
+__pycache__/
+*.py[cod]
+*$py.class
+.vscode/
+.DS_Store
+.AppleDouble
+.LSOverride
+.env
+db.sqlite3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.vscode/*
+.idea/*
+node_modules/*
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+db.sqlite3
+db.sqlite3-journal
+*.log
+*.mo
+*.pot
+celerybeat-schedule
+celerybeat.pid
+env/
+.env

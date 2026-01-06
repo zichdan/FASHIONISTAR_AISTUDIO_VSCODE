@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Production frontend service
+  paycore-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+        VITE_APP_NAME: ${VITE_APP_NAME:-PayCore}
+        VITE_ENABLE_BIOMETRIC_AUTH: ${VITE_ENABLE_BIOMETRIC_AUTH:-true}
+        VITE_ENABLE_OAUTH: ${VITE_ENABLE_OAUTH:-true}
+    container_name: paycore-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+    restart: unless-stopped
+    networks:
+      - paycore-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Development frontend service (commented out by default)
+  # Uncomment this section for development with hot reload
+  # paycore-frontend-dev:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   container_name: paycore-frontend-dev
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+  #     - CHOKIDAR_USEPOLLING=true
+  #   networks:
+  #     - paycore-network
+
+networks:
+  paycore-network:
+    name: paycore-network
+    driver: bridge

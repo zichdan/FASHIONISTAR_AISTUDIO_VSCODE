@@ -1,0 +1,28 @@
+/* Google Sign-In Button Width Fix */
+/* Force Google button container and iframe to maintain full width */
+
+.google-button-container {
+  width: 100% !important;
+  min-height: 44px;
+}
+
+.google-button-container > div {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.google-button-container iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Override any inline styles Google might add */
+.google-button-container [style*="width"] {
+  width: 100% !important;
+}
+
+/* Ensure the button itself maintains width */
+.google-button-container div[role="button"] {
+  width: 100% !important;
+}

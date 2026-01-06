@@ -1,0 +1,1 @@
+# apps/authentication/types/__init__.py
