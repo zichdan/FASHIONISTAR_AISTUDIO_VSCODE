@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from apps.authentication.services.auth_service import AuthService
 from apps.authentication.types.auth_schemas import LoginSchema
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import serializers
 import logging
 
@@ -21,6 +22,8 @@ class LoginView(generics.GenericAPIView):
     API view for user login.
     """
     serializer_class = LoginSerializer
+    
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         try:

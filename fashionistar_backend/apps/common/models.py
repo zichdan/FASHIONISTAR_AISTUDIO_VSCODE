@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 import logging
+import uuid6  # provides uuid7()
 
 logger = logging.getLogger('application')
 
@@ -13,7 +14,9 @@ class TimeStampedModel(models.Model):
     'created_at' and 'updated_at' fields.
     
     This ensures all models have automatic timestamping for audit trails.
+    Uses UUID7 as the primary key for time-ordered, high-performance identifiers.
     """
+    id = models.UUIDField(primary_key=True, default=uuid6.uuid7, editable=False, help_text="UUID7 primary key (time-ordered).")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, help_text="Timestamp when the record was created.")
     updated_at = models.DateTimeField(auto_now=True, help_text="Timestamp when the record was last updated.")
 
@@ -43,7 +46,7 @@ class SoftDeleteModel(models.Model):
             # Save a copy to DeletedRecords
             DeletedRecords.objects.create(
                 model_name=self.__class__.__name__,
-                record_id=self.pk,
+                record_id=str(self.pk),
                 data=self.__dict__  # Serialize for recovery
             )
             self.is_deleted = True
@@ -73,7 +76,8 @@ class DeletedRecords(models.Model):
     This allows retrieval without querying the main table.
     """
     model_name = models.CharField(max_length=100, help_text="Name of the model that was deleted.")
-    record_id = models.PositiveIntegerField(help_text="Primary key of the deleted record.")
+    # switched from PositiveIntegerField to CharField to support UUID primary keys (UUID7) and legacy ints
+    record_id = models.CharField(max_length=50, help_text="Primary key of the deleted record (supports UUIDs and ints).")
     data = models.JSONField(help_text="Serialized data of the deleted record.")
     deleted_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp of deletion.")
 
@@ -108,7 +112,7 @@ class HardDeleteMixin:
                 delete_cloudinary_asset(self.avatar.name)  # Async task for Cloudinary
             
             # Log before deletion
-            logger.info(f"Hard-deleting {self.__class__.__name__} with ID {self.pk} by user {user.email}")
+            logger.info(f"Hard-deleting {self.__class__.__name__} with ID {self.pk} by user {getattr(user, 'email', str(user))}")
             
             # Perform hard delete
             super().delete()
