@@ -8,6 +8,15 @@ logger = logging.getLogger('application')
 class CustomJSONRenderer(JSONRenderer):
     """
     Custom JSON renderer for standardized API responses.
+    Formats success and error responses consistently.
+    
+    Args:
+        data: The data to render.
+        accepted_media_type: The accepted media type.
+        renderer_context: The renderer context.
+        
+    Returns:
+        bytes: The rendered JSON response.
     """
     def render(self, data, accepted_media_type=None, renderer_context=None):
         try:

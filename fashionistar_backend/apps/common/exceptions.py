@@ -9,11 +9,18 @@ logger = logging.getLogger('application')
 
 def custom_exception_handler(exc, context):
     """
-    Global exception handler for JSON formatted error responses.
+    Global exception handler for JSON-formatted error responses.
+    Handles both expected and unexpected exceptions with logging.
+    
+    Args:
+        exc: The exception instance.
+        context: The context dictionary.
+        
+    Returns:
+        Response: A standardized JSON error response.
     """
     try:
         response = exception_handler(exc, context)
-
         if response is not None:
             response.data = {
                 'success': False,
@@ -26,7 +33,6 @@ def custom_exception_handler(exc, context):
                 'message': 'Internal server error',
                 'error': str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         logger.error(f"Exception handled: {str(exc)}")
         return response
     except Exception as e:
