@@ -26,3 +26,29 @@ def create_email_backend_config(sender, **kwargs):
 
         except Exception as e:
             application_logger.error(f"Error creating/accessing EmailBackendConfig instance from post_migrate: {e}", exc_info=True)
+
+
+@receiver(post_migrate)
+def create_sms_backend_config(sender, **kwargs):
+    """
+    Signal receiver that runs after migrations are complete for the admin_backend app.
+    Creates a default SMSBackendConfig instance if none exist.
+    """
+    if sender.name == 'admin_backend':
+        try:
+            SMSBackendConfig = apps.get_model('admin_backend', 'SMSBackendConfig')  # Get model dynamically
+
+            if not SMSBackendConfig.objects.exists():
+                SMSBackendConfig.objects.create(
+                    provider='twilio',
+                    is_active=True,
+                    api_key=settings.TWILIO_ACCOUNT_SID or '',
+                    api_secret=settings.TWILIO_AUTH_TOKEN or '',
+                    sender_id=settings.TWILIO_PHONE_NUMBER or ''
+                )
+                application_logger.info("Default SMSBackendConfig instance created via post_migrate signal.")
+            else:
+                application_logger.info("SMSBackendConfig instance already exists.")
+
+        except Exception as e:
+            application_logger.error(f"Error creating/accessing SMSBackendConfig instance from post_migrate: {e}", exc_info=True)

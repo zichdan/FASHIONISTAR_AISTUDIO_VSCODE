@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Any, List, Optional
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -54,8 +55,11 @@ class EmailManager:
         Send email (async).
         """
         try:
-            # Async version would use async email sending if available; for now, wrap sync
-            await cls.send_mail(subject, recipients, context, template_name, message, attachments, fail_silently)
+            # Run sync email sending in a thread to avoid blocking the event loop
+            await asyncio.to_thread(
+                cls.send_mail,
+                subject, recipients, context, template_name, message, attachments, fail_silently
+            )
             logger.info(f"Email sent (async) to {recipients}")
         except Exception as e:
             logger.error(f"Error sending email (async): {str(e)}")

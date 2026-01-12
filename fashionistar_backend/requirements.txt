@@ -102,6 +102,7 @@ typing_extensions
 tzdata
 uritemplate
 urllib3
+uuid6
 vine
 virtualenv
 wcwidth
@@ -109,3 +110,7 @@ wheel
 whitenoise
 wrapt
 yarl
+httpx
+adrf
+email-validator
+fido2

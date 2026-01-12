@@ -1,6 +1,7 @@
 import logging
+import asyncio
+import importlib
 from django.conf import settings
-from twilio.rest import Client
 
 logger = logging.getLogger('application')
 
@@ -10,7 +11,31 @@ class SMSManagerError(Exception):
 class SMSManager:
     """
     Manages SMS sending with sync and async methods.
+    Dynamically selects provider based on admin_backend config.
     """
+
+    @classmethod
+    def _get_provider(cls):
+        """
+        Dynamically load the SMS provider based on config.
+        """
+        try:
+            from admin_backend.models import SMSBackendConfig
+            config = SMSBackendConfig.objects.filter(is_active=True).first()
+            if not config:
+                logger.warning("No active SMS provider configured, using default Twilio")
+                provider_name = 'twilio'
+            else:
+                provider_name = config.provider.lower()
+            
+            # Import the provider module
+            module = importlib.import_module(f'apps.common.providers.SMS.{provider_name}')
+            provider_class = getattr(module, f'{provider_name.capitalize()}SMSProvider')
+            return provider_class()
+        except Exception as e:
+            logger.error(f"Error loading SMS provider: {str(e)}, falling back to Twilio")
+            from apps.common.providers.SMS.twilio import TwilioSMSProvider
+            return TwilioSMSProvider()
 
     @classmethod
     def send_sms(cls, to: str, body: str) -> str:
@@ -18,10 +43,8 @@ class SMSManager:
         Send SMS (sync).
         """
         try:
-            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-            message = client.messages.create(body=body, from_=settings.TWILIO_PHONE_NUMBER, to=to)
-            logger.info(f"SMS sent to {to} with SID: {message.sid}")
-            return message.sid
+            provider = cls._get_provider()
+            return provider.send(to, body)
         except Exception as e:
             logger.error(f"Error sending SMS: {str(e)}")
             raise SMSManagerError(f"Failed to send SMS to {to}: {e}")
@@ -32,8 +55,8 @@ class SMSManager:
         Send SMS (async).
         """
         try:
-            # Async version; wrap sync for now
-            return await cls.send_sms(to, body)
+            provider = cls._get_provider()
+            return await provider.asend(to, body)
         except Exception as e:
             logger.error(f"Error sending SMS (async): {str(e)}")
             raise SMSManagerError(f"Failed to send SMS to {to}: {e}")
