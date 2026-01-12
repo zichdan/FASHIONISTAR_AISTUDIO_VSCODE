@@ -2,6 +2,7 @@ from .category_admin import CategoryAdmin  # or from .category import CategoryAd
 from .brand_admin import BrandAdmin        # or from .brand import BrandAdmin
 from .collection_admin import CollectionsAdmin # or from .collection import CollectionsAdmin
 from .email_backend_config_admin import EmailBackendConfigAdmin # or from .collection import CollectionsAdmin
+from .sms_backend_config_admin import SMSBackendConfigAdmin
 
 
 

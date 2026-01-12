@@ -1,4 +1,4 @@
-# admin_backend/sms_backends.py
+# admin_backend/backends/sms_backends.py
 
 import logging
 from django.apps import apps
@@ -46,22 +46,14 @@ class DatabaseConfiguredSMSBackend:
         try:
             # Dynamically retrieve the SMSBackendConfig model to avoid import issues
             SMSBackendConfig = apps.get_model('admin_backend', 'SMSBackendConfig')
-            config = SMSBackendConfig.objects.filter(is_active=True).first()
+            config = SMSBackendConfig.objects.first()
 
-            if config and config.provider:
-                # Map provider names to their full class paths
-                provider_mapping = {
-                    'twilio': 'apps.common.providers.SMS.twilio.TwilioSMSProvider',
-                    'termii': 'apps.common.providers.SMS.termii.TermiiSMSProvider',
-                    'bulksmsNG': 'apps.common.providers.SMS.bulksmsNG.BulksmsNGSMSProvider',
-                }
-                provider_path = provider_mapping.get(config.provider.lower())
-                if not provider_path:
-                    application_logger.warning(f"Unknown provider '{config.provider}', falling back to Twilio.")
-                    provider_path = 'apps.common.providers.SMS.twilio.TwilioSMSProvider'
+            if config and config.sms_backend:
+                provider_path = config.sms_backend
+                application_logger.info(f"Using SMS backend from database config: {provider_path}")
             else:
                 provider_path = 'apps.common.providers.SMS.twilio.TwilioSMSProvider'
-                application_logger.warning("No active SMSBackendConfig found, using default Twilio provider.")
+                application_logger.warning("No SMSBackendConfig found, using default Twilio provider.")
 
             # Dynamically import and instantiate the provider class
             provider_class = import_string(provider_path)

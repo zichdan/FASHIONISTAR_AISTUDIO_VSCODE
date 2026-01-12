@@ -1,70 +1,58 @@
 # admin_backend/models/sms_backend_config.py
 
 from django.db import models
-from apps.common.models import TimeStampedModel
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _  # For internationalization
 import logging
 
 logger = logging.getLogger('application')
 
-class SMSBackendConfig(TimeStampedModel):
+class SMSBackendConfig(models.Model):
     """
     Configuration for SMS backend providers.
     Allows dynamic selection of SMS provider via admin interface.
+    Exactly mirrors EmailBackendConfig for consistency.
     """
 
-    PROVIDER_CHOICES = [
-        ('twilio', 'Twilio'),
-        ('termii', 'Termii'),
-        ('bulksmsNG', 'BulkSMS Nigeria'),
+    SMS_BACKEND_CHOICES = [
+        ('apps.common.providers.SMS.twilio.TwilioSMSProvider', 'Twilio'),
+        ('apps.common.providers.SMS.termii.TermiiSMSProvider', 'Termii'),
+        ('apps.common.providers.SMS.bulksmsNG.BulksmsNGSMSProvider', 'BulkSMS Nigeria'),
     ]
 
-    provider = models.CharField(
-        max_length=20,
-        choices=PROVIDER_CHOICES,
-        default='twilio',
-        help_text="SMS provider to use."
-    )
-    is_active = models.BooleanField(
-        default=False,
-        help_text="Whether this configuration is active."
-    )
-    api_key = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text="API key for the provider."
-    )
-    api_secret = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text="API secret for the provider."
-    )
-    sender_id = models.CharField(
-        max_length=20,
-        blank=True,
-        help_text="Sender ID for SMS."
-    )
-    base_url = models.URLField(
-        blank=True,
-        help_text="Base URL for API calls (if needed)."
+    sms_backend = models.CharField(
+        max_length=250,  # Increased max length to match email
+        choices=SMS_BACKEND_CHOICES,
+        default='apps.common.providers.SMS.twilio.TwilioSMSProvider',  # Twilio as default
+        verbose_name='Select SMS Backend',
+        help_text=_("Choose the SMS backend you wish to use for sending SMS. Ensure API credentials are set in environment variables."),
+        db_index=True  # Add a database index
     )
 
-    class Meta:
-        verbose_name = "SMS Backend Config"
-        verbose_name_plural = "SMS Backend Configs"
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.provider} ({'Active' if self.is_active else 'Inactive'})"
+        # Get the display name of the chosen SMS backend
+        return dict(self.SMS_BACKEND_CHOICES).get(self.sms_backend, "SMS Backend Configuration")
+
+    class Meta:
+        verbose_name = "SMS Backend Configuration"
+        verbose_name_plural = "SMS Backend Configuration"
+        indexes = [
+            models.Index(fields=['sms_backend'], name='sms_backend_idx'),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.pk is None:  # It's a new instance
+            if SMSBackendConfig.objects.exists():
+                raise ValidationError(_("You cannot create a new instance once the first one is created. Instead, you can edit the already existing one to your preferred SMS provider."))
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError(_("You cannot DELETE this SMS Backend Configuration instance!!!.  This configuration is required for sending SMS.!!!   You can Only EDIT to your preferred SMS provider."))
 
     def save(self, *args, **kwargs):
-        """
-        Ensure only one active config at a time.
-        """
-        try:
-            if self.is_active:
-                # Deactivate other configs
-                SMSBackendConfig.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
-            super().save(*args, **kwargs)
-            logger.info(f"SMS config saved: {self.provider}")
-        except Exception as e:
-            logger.error(f"Error saving SMS config: {str(e)}")
-            raise
+        self.full_clean()  # Ensure clean() is called before saving.
+        super().save(*args, **kwargs)

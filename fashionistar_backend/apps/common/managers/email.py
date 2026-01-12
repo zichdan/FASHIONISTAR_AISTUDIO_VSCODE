@@ -1,3 +1,5 @@
+# apps/common/managers/email.py
+
 import logging
 import asyncio
 from typing import Any, List, Optional
@@ -64,3 +66,86 @@ class EmailManager:
         except Exception as e:
             logger.error(f"Error sending email (async): {str(e)}")
             raise
+
+    @classmethod
+    def bulk_send_mail(cls, email_messages: List[dict[str, Any]], fail_silently: bool = False) -> None:
+        """
+        Sends multiple emails in bulk (Synchronous/Blocking).
+
+        This method processes a list of email message dictionaries, constructing and dispatching
+        each EmailMultiAlternatives object. It supports batch sending with comprehensive error handling.
+
+        Args:
+            email_messages (List[dict[str, Any]]): A list of dictionaries, each containing:
+                - 'subject' (str): The subject line of the email.
+                - 'recipients' (List[str]): List of recipient email addresses.
+                - 'context' (Optional[dict[str, Any]]): Data for template rendering.
+                - 'template_name' (Optional[str]): Path to the HTML template.
+                - 'message' (Optional[str]): Plain text message (mutually exclusive with template).
+                - 'attachments' (Optional[List[tuple]]): List of (filename, content, mimetype) tuples.
+            fail_silently (bool): If True, suppresses exceptions (default: False).
+
+        Raises:
+            EmailManagerError: If invalid arguments are provided for any message.
+            TemplateDoesNotExist: If a specified template is invalid.
+            Exception: Any underlying error from the email backend provider.
+        """
+        try:
+            for email_data in email_messages:
+                # Extract parameters with defaults
+                subject = email_data.get('subject')
+                recipients = email_data.get('recipients', [])
+                context = email_data.get('context')
+                template_name = email_data.get('template_name')
+                message = email_data.get('message')
+                attachments = email_data.get('attachments')
+
+                # Validate required fields
+                if not subject or not recipients:
+                    raise EmailManagerError("Each email message must have 'subject' and 'recipients'.")
+
+                # Send individual email
+                cls.send_mail(
+                    subject=subject,
+                    recipients=recipients,
+                    context=context,
+                    template_name=template_name,
+                    message=message,
+                    attachments=attachments,
+                    fail_silently=fail_silently
+                )
+
+            logger.info(f"✅ Bulk email sending completed: {len(email_messages)} messages sent.")
+
+        except Exception as e:
+            logger.error(f"❌ Error in bulk email sending: {e}", exc_info=True)
+            if not fail_silently:
+                raise
+
+    @classmethod
+    async def abulk_send_mail(cls, email_messages: List[dict[str, Any]], fail_silently: bool = False) -> None:
+        """
+        Sends multiple emails in bulk asynchronously (Non-Blocking).
+
+        This method wraps the synchronous bulk_send_mail in asyncio.to_thread to prevent
+        blocking the event loop during batch email operations.
+
+        Args:
+            email_messages (List[dict[str, Any]]): Same as bulk_send_mail.
+            fail_silently (bool): Same as bulk_send_mail.
+
+        Returns:
+            None
+        """
+        try:
+            # Offload the blocking bulk operation to a worker thread
+            await asyncio.to_thread(
+                cls.bulk_send_mail,
+                email_messages=email_messages,
+                fail_silently=fail_silently
+            )
+            logger.info(f"✅ Bulk email sent (async): {len(email_messages)} messages.")
+        except Exception as e:
+            logger.error(f"❌ Error in async bulk email sending: {e}", exc_info=True)
+            if not fail_silently:
+                raise

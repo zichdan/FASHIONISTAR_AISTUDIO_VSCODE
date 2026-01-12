@@ -1,3 +1,5 @@
+# apps/common/managers/sms.py
+
 import logging
 import asyncio
 from typing import List
@@ -48,7 +50,7 @@ class SMSManager:
         """
         try:
             # Import the backend dynamically to avoid circular imports
-            from admin_backend.sms_backends import DatabaseConfiguredSMSBackend
+            from admin_backend.backends.sms_backends import DatabaseConfiguredSMSBackend
             backend = DatabaseConfiguredSMSBackend()
 
             # Prepare the message in the expected format
@@ -87,3 +89,64 @@ class SMSManager:
             # We catch it here to ensure any thread-boundary errors are logged with context
             logger.error(f"❌ Async SMS Send Error to {to}: {e}", exc_info=True)
             raise SMSManagerError(f"Async SMS Failed to {to}: {e}")
+
+    @classmethod
+    def bulk_send_sms(cls, sms_messages: List[dict[str, str]]) -> List[str]:
+        """
+        Sends multiple SMS messages in bulk (Synchronous/Blocking).
+
+        This method processes a list of SMS message dictionaries, dispatching each one
+        using the configured backend. It returns a list of message IDs or status strings.
+
+        Args:
+            sms_messages (List[dict[str, str]]): A list of dictionaries, each containing:
+                - 'to' (str): The recipient's phone number (E.164 format recommended).
+                - 'body' (str): The text content of the SMS message.
+
+        Returns:
+            List[str]: A list of Message SIDs or Status Strings for each sent message.
+
+        Raises:
+            SMSManagerError: If any message fails to send or validation fails.
+        """
+        try:
+            results = []
+            for sms_data in sms_messages:
+                to = sms_data.get('to')
+                body = sms_data.get('body')
+
+                # Validate required fields
+                if not to or not body:
+                    raise SMSManagerError("Each SMS message must have 'to' and 'body'.")
+
+                # Send individual SMS
+                result = cls.send_sms(to=to, body=body)
+                results.append(result)
+
+            logger.info(f"✅ Bulk SMS sending completed: {len(results)} messages sent.")
+            return results
+
+        except Exception as e:
+            logger.error(f"❌ Error in bulk SMS sending: {e}", exc_info=True)
+            raise SMSManagerError(f"Bulk SMS sending failed: {e}")
+
+    @classmethod
+    async def abulk_send_sms(cls, sms_messages: List[dict[str, str]]) -> List[str]:
+        """
+        Sends multiple SMS messages in bulk asynchronously (Non-Blocking).
+
+        This method wraps the synchronous bulk_send_sms in asyncio.to_thread to prevent
+        blocking the event loop during batch SMS operations.
+
+        Args:
+            sms_messages (List[dict[str, str]]): Same as bulk_send_sms.
+
+        Returns:
+            List[str]: Same as bulk_send_sms.
+        """
+        try:
+            # Offload the blocking bulk operation to a worker thread
+            return await asyncio.to_thread(cls.bulk_send_sms, sms_messages)
+        except Exception as e:
+            logger.error(f"❌ Error in async bulk SMS sending: {e}", exc_info=True)
+            raise SMSManagerError(f"Async bulk SMS sending failed: {e}")
