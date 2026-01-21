@@ -54,6 +54,8 @@ def get_redis_connection_safe(max_retries=REDIS_MAX_RETRIES, retry_delay=REDIS_R
     """
     for attempt in range(max_retries):
         try:
+            from django_redis import get_redis_connection
+
             redis_conn = get_redis_connection("default")
             redis_conn.ping()  # Ensure Redis is available
             return redis_conn
