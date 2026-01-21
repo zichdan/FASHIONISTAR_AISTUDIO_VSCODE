@@ -20,18 +20,25 @@ Security:
     ✅ Audit trail for all password changes
 """
 
+
 import logging
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Union, List, Tuple
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from asgiref.sync import sync_to_async
+from apps.common.utils import (
+    encrypt_otp,
+    decrypt_otp,
+    get_redis_connection_safe,
+    generate_numeric_otp,
+    get_otp_expiry_datetime
+)
 import re
 
 logger = logging.getLogger('application')
 User = get_user_model()
-
 
 # ============================================================================
 # PASSWORD SERVICE (DUAL PATH: ASYNC/SYNC)

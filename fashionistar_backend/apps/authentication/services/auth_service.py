@@ -47,15 +47,17 @@ Compliance:
     ✅ Audit trail for security events
 """
 
+
 import logging
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple, Any, Union, List
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.tokens import RefreshToken
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import transaction
-
+from apps.authentication.models import UnifiedUser
+from apps.common.utils import get_redis_connection_safe
 logger = logging.getLogger('application')
 
 

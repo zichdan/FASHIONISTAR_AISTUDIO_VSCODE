@@ -411,7 +411,7 @@ We optimize the old scanning method. We use Direct Key Access via User ID.
 import secrets
 import redis
 from django.conf import settings
-from utilities.django_redis import encrypt_otp, decrypt_otp  # From existing codebase
+from apps.common.utils import encrypt_otp, decrypt_otp  # From existing codebase
 import logging
 
 logger = logging.getLogger('application')

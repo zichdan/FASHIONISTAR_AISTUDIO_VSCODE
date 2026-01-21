@@ -34,16 +34,22 @@ Security:
     ✅ Transaction rollback on failure
 """
 
+
 import logging
-from typing import Dict, Tuple, Optional, Any
+from typing import Dict, Tuple, Optional, Any, Union, List
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from asgiref.sync import sync_to_async
 from django.utils import timezone
-import secrets
+from apps.common.utils import (
+    encrypt_otp,
+    decrypt_otp,
+    get_redis_connection_safe,
+    generate_numeric_otp,
+    get_otp_expiry_datetime
+)
 
 logger = logging.getLogger('application')
-
 User = get_user_model()  # Unified User model
 
 
