@@ -1,0 +1,135 @@
+src/
+├── config/                          # Project settings & ASGI/WGI entry points
+│   ├── `settings/`                  # Split settings (base, dev, prod, logging, opentelemetry)
+│   │   ├── `base.py`                # Base settings (installed apps, middleware)
+│   │   ├── `development.py`         # Local/dev overrides
+│   │   ├── `production.py`          # Production settings (security, logging)
+│   │   ├── `logging.py`             # Structured JSON logging config (ELK)
+│   │   └── `opentelemetry.py`       # Tracing + metrics exporters
+│   ├── `asgi.py`                    # ASGI entry point (Uvicorn/Gunicorn async)
+│   └── `wsgi.py`                    # WSGI fallback (if needed)
+│
+├── apps/                            # DOMAIN LAYER (feature / bounded contexts)
+│   ├── common/                      # Foundation / shared utilities & conventions
+│   │   ├── `models.py`              # TimeStampedModel, SoftDelete, HardDeleteMixin
+│   │   ├── `events.py`              # EventBus, Event definitions, publishers/subscriptions
+│   │   ├── `middleware.py`          # RequestID, CSP nonce, timing, error correlation
+│   │   ├── `logging.py`             # RequestID filter, JSON formatter helpers
+│   │   ├── `permissions.py`         # IsVendor, IsStaff, IsOwner, etc.
+│   │   ├── `exceptions.py`          # App-specific exceptions, HTTP -> Domain mapping
+│   │   ├── `tasks.py`               # Shared task utilities (retry helpers, idempotency keys)
+│   │   └── `utils.py`               # Redis wrappers, serializer helpers, email templating
+│   │
+│   ├── authentication/              # Identity & access management
+│   │   ├── apis/
+│   │   │   ├── sync/                 # DRF-based sync endpoints (admin, legacy flows)
+│   │   │   │   └── `views.py`        # ViewSets, serializers (sync)
+│   │   │   └── async/                # Django Ninja async endpoints (auth flows, OTP)
+│   │   │       └── `ninja_api.py`    # Pydantic schemas + async handlers
+│   │   ├── `models.py`               # User (merged profile), Role, AuthProvider
+│   │   ├── `serializers.py`          # DRF serializers for sync APIs
+│   │   ├── `types/`                  # Pydantic schemas for Ninja
+│   │   ├── `services/`               # auth_service.py, google_service.py, otp_service.py
+│   │   ├── `tasks.py`                # Verification email, cleanup, audit tasks
+│   │   ├── `selectors.py`            # Read-optimized queries for profile/stats
+│   │   └── `urls.py`                 # V1 (DRF) & V2 (Ninja) routing helpers
+│   │
+│   ├── products/                     # Product catalog & catalog services
+│   │   ├── apis/
+│   │   │   ├── sync/                 # DRF ViewSets for admin and 3rd-party apps
+│   │   │   └── async/                # Ninja endpoints for high-throughput read paths
+│   │   │       └── `ninja_api.py`
+│   │   ├── `models.py`               # Product, Category, Media, Variant
+│   │   ├── `services.py`             # product_service (search, indexing, sync with CDN)
+│   │   ├── `selectors.py`            # optimized queries (select_related/prefetch)
+│   │   └── `search/`                 # Search adapters (ElasticSearch/Meilisearch integration)
+│   │
+│   ├── inventory/                    # Inventory and stock management
+│   │   ├── `models.py`               # Inventory, Warehouse, Reservations
+│   │   ├── `services.py`             # stock allocation, reservation, release
+│   │   └── `apis/async.py`           # async endpoints for stock checks (fast)
+│   │
+│   ├── orders/                       # Order processing domain (async-first)
+│   │   ├── apis/
+│   │   │   └── `async_ninja.py`      # Pure Ninja order endpoints (create/list/detail)
+│   │   ├── `models.py`               # Order, OrderItem, Shipment
+│   │   ├── `services/`               # order_service.py (sync + async variants)
+│   │   ├── `events.py`               # OrderCreatedEvent, PaymentConfirmedEvent
+│   │   ├── `tasks.py`                # process_order_payment, fulfillment tasks
+│   │   └── `selectors.py`            # order read-optimized queries
+│   │
+│   ├── payments/                     # Payment gateways & reconciliation
+│   │   ├── `services/`               # PaymentService (Stripe, Paystack, adapters)
+│   │   ├── `apis/`                   # Webhook endpoints (sync + idempotency)
+│   │   └── `tasks.py`                # reconcile payments, async settlement jobs
+│   │
+│   ├── notifications/                # Notification delivery & unified FCM integration
+│   │   ├── `services/`               # FCM adapter, SMS adapter, email adapter
+│   │   ├── `apis/`                   # endpoints to register devices, subscribe channels
+│   │   └── `tasks.py`                # push notifications, retry logic, batching
+│   │
+│   ├── analytics/                    # Event analytics, batch reports, streaming exports
+│   │   ├── `tasks.py`                # generate_sales_report, nightly aggregates
+│   │   ├── `services.py`             # analytics pipeline (Kafka or event bus exporter)
+│   │   └── `exports/`                # data export utilities (S3)
+│   │
+│   └── admin/                        # Admin-only APIs and management utilities
+│       ├── `apis/sync_views.py`      # admin DRF viewsets (user/product management)
+│       └── `tools/`                  # management commands, migration helpers
+│
+├── utilities/                        # Infrastructure helpers used across apps
+│   ├── `redis_client.py`             # Redis cluster client wrapper (sentinel/cluster aware)
+│   ├── `cache.py`                    # cache decorators, cache keys conventions
+│   ├── `email_client.py`             # templating + delivery adapters (SES/SMTP/SendGrid)
+│   ├── `storage.py`                  # Cloudinary/S3 wrappers + signed URLs
+│   └── `metrics.py`                  # Prometheus metrics helpers, custom metrics
+│
+├── scripts/                          # Dev and ops scripts (data migration, seeding)
+│   ├── `migrate_v1_users.py`        # One-time migration helpers (user/profile merge)
+│   └── `reindex_search.py`           # Rebuild search indices job
+│
+├── docker/                           # Docker/K8s helpers & manifests
+│   ├── `Dockerfile`                  # Optimized multi-stage image for backend
+│   ├── `docker-compose.yml`          # Local compose with redis, pg, pgbouncer
+│   └── `k8s/`                        # Kubernetes manifests (deployments, hpa, svc)
+│
+├── infra/                            # Infra-as-code & monitoring config
+│   ├── `pgbouncer/`                  # PgBouncer config for connection pooling
+│   ├── `redis/`                      # Sentinel + cluster ops scripts & helm values
+│   └── `monitoring/`                 # Prometheus, Grafana dashboards, alerts
+│
+├── tests/                            # Tests (unit, integration, e2e)
+│   ├── `unit/`                       # pytest unit tests per app
+│   ├── `integration/`                # cross-app flows, async tests (pytest-asyncio)
+│   └── `e2e/`                        # playwright/cypress tests (frontend-backend)
+│
+├── docs/                             # Architecture docs, runbooks, API contract (OpenAPI)
+│   ├── `architecture.md`             # High-level diagrams and design decisions
+│   ├── `api/`                        # Generated OpenAPI for DRF & Ninja (v1/v2)
+│   └── `runbooks/`                   # Runbooks for incidents, rollbacks, DB restore
+│
+├── .github/                          # CI / CD workflows (lint/test/build/deploy)
+│   └── `workflows/`                  # ci.yml, cd.yml, canary-deploy.yml
+│
+├── requirements.txt                  # Python dependencies (pinned for stability)
+├── pyproject.toml                    # Optional (tooling, formatting, type checkers)
+├── manage.py                         # Django manage helper
+└── README.md                         # Project overview & developer setup notes
+
+Notes and conventions:
+- Sync vs Async separation:
+  - Use the `apis/sync/` folders for DRF endpoints that require synchronous behavior (admin/complex joins).
+  - Use the `apis/async/` (Django Ninja) for high-throughput, I/O-bound endpoints (AI, search, orders).
+  - Shared business logic lives in `services/` with both `sync` and `async` capable implementations (e.g., `create_order` + `create_order_async`).
+- Background tasks:
+  - Use the `tasks.py` in each app and a centralized `apps/common/tasks.py` for shared helpers; route tasks into named Redis queues (`emails`, `critical`, `analytics`) and isolate workers per queue.
+- Events:
+  - Publish domain events via `apps.common.events.EventBus` and subscribe with async handlers; avoid Django signals for cross-service communication.
+- Observability:
+  - Structured JSON logging (`apps.common.logging`), OpenTelemetry tracing, Prometheus metrics (`utilities.metrics`) and Grafana dashboards in `infra/monitoring`.
+- Security:
+  - `config/production.py` enforces CSP, HSTS, secure cookie flags, and disables DEBUG. Secrets should be injected from secret manager (Vault/AWS Secrets Manager).
+- DB pooling:
+  - Use PgBouncer (`infra/pgbouncer`) in `transaction` mode and tune connection pools to match worker counts.
+- Schema contracts:
+  - Generate OpenAPI from DRF and Ninja outputs; use them to auto-generate typed clients and Zod/Pydantic schemas for frontend/backend contract sync.
